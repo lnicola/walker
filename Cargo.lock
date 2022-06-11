@@ -808,9 +808,9 @@ dependencies = [
 
 [[package]]
 name = "rasterize"
-version = "0.1.10"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51d038ad4e4b49fa691c1f6d65cfcc3892e1476d1560234c0352f0417d625c27"
+checksum = "eb7b83da65ed61d31813dc8711f52a65ff67aefd837c668bc7b53dbbeee68307"
 dependencies = [
  "png",
  "tracing",

@@ -1,5 +1,6 @@
 use std::env;
 use std::io::BufWriter;
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::{fs::File, path::Path};
 
@@ -236,9 +237,9 @@ struct RasterizeOptions {
 
 fn rasterize_route(
     options: &RasterizeOptions,
-    output: File,
+    output: PathBuf,
     mut mls: MultiLineString<f64>,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<Option<PathBuf>> {
     reproject_mls(&mut mls);
     let scene = Scene::stroke(
         Arc::new(mls_to_path(mls)),
@@ -251,11 +252,16 @@ fn rasterize_route(
         Some(options.bbox),
         None,
     );
-    layer.write_png(output)?;
-    Ok(())
+    if layer.width() > 0 && layer.height() > 0 {
+        let out = File::create(&output)?;
+        layer.write_png(out)?;
+        Ok(Some(output))
+    } else {
+        Ok(None)
+    }
 }
 
-fn accumulate_images(bbox: BBox, images: &[String]) -> anyhow::Result<()> {
+fn accumulate_images(bbox: BBox, images: &[PathBuf]) -> anyhow::Result<()> {
     let mut layer = Layer::new(bbox, Some(LinColor::new(1.0, 1.0, 1.0, 1.0)));
     let mut buf = vec![0; layer.width() * layer.height() * 4];
     for img in images {
@@ -334,11 +340,9 @@ fn main() -> Result<(), Error> {
 
     let mut images = routes
         .into_par_iter()
-        .map(|(date, mls)| {
+        .filter_map(|(date, mls)| {
             let raster_name = format!("{date}.png");
-            let file = File::create(&raster_name)?;
-            rasterize_route(&rasterize_options, file, mls)?;
-            Ok(raster_name)
+            rasterize_route(&rasterize_options, raster_name.into(), mls).transpose()
         })
         .collect::<Result<Vec<_>, Error>>()?;
 
