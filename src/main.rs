@@ -5,7 +5,7 @@ use std::sync::Arc;
 use std::{fs::File, path::Path};
 
 use anyhow::{bail, Error};
-use flatgeobuf::{ColumnType, FgbWriter, GeometryType};
+use flatgeobuf::{ColumnType, FgbCrs, FgbWriter, FgbWriterOptions, GeometryType};
 use geo_types::{Geometry, MultiLineString};
 use geozero::{ColumnValue, PropertyProcessor};
 use itertools::Itertools;
@@ -178,8 +178,14 @@ pub struct Point {
 }
 
 fn export_fgb(name: &str, file: &Path, points: &[Point]) -> anyhow::Result<()> {
-    let mut fgb = FgbWriter::create(name, GeometryType::Point, |_, _| {})?;
-    fgb.set_crs(4326, |_fbb, _crs| {});
+    let options = FgbWriterOptions {
+        crs: FgbCrs {
+            code: 4326,
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+    let mut fgb = FgbWriter::create_with_options(name, GeometryType::Point, options)?;
     fgb.add_column("time", ColumnType::DateTime, |_, col| {
         col.nullable = false;
     });
