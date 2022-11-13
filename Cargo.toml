@@ -19,5 +19,5 @@ rasterize = { version = "0.2", default-features = false, features = ["png"] }
 rayon = "1.5"
 reqwest = { version = "0.11", features = ["blocking", "json"] }
 serde = { version = "1.0", features = ["derive"] }
-time = { version = "0.3.5", features = ["formatting", "parsing"] }
+time = { version = "0.3", features = ["formatting", "parsing"] }
 zip = "0.6"
