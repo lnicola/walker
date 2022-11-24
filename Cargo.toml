@@ -12,7 +12,7 @@ flatgeobuf = "0.8"
 geo-types = "0.7"
 geozero = "0.9"
 itertools = "0.10"
-percent-encoding = "2.1.0"
+percent-encoding = "2.2"
 png = "0.17.2"
 polyline = "0.9.0"
 rasterize = { version = "0.2", default-features = false, features = ["png"] }
