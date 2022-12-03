@@ -11,8 +11,8 @@ use geozero::{ColumnValue, PropertyProcessor};
 use itertools::Itertools;
 use png::Decoder;
 use rasterize::{
-    ActiveEdgeRasterizer, BBox, Color, ColorU8, Image, ImageMut, Layer, LinColor, Line, LineCap,
-    LineJoin, Paint, Scene, Segment, StrokeStyle, SubPath, Transform,
+    ActiveEdgeRasterizer, BBox, Color, Image, ImageMut, Layer, LinColor, Line, LineCap, LineJoin,
+    Paint, Scene, Segment, StrokeStyle, SubPath, Transform, RGBA,
 };
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use time::format_description::well_known;
@@ -249,7 +249,7 @@ fn rasterize_route(
     reproject_mls(&mut mls);
     let scene = Scene::stroke(
         Arc::new(mls_to_path(mls)),
-        Arc::clone(&options.stroke_color) as Arc<dyn Paint>,
+        Arc::clone(&options.stroke_color) as Arc<dyn Paint + Send + Sync>,
         options.stroke_style,
     );
     let layer = scene.render(
@@ -280,7 +280,7 @@ fn accumulate_images(bbox: BBox, images: &[PathBuf]) -> anyhow::Result<()> {
                 .zip((&buf[..info.buffer_size()]).chunks(4))
                 .for_each(|(pa, p)| {
                     let p = &p[..4];
-                    *pa = pa.blend_over(&ColorU8::new(p[0], p[1], p[2], p[3]).into());
+                    *pa = pa.blend_over(RGBA::new(p[0], p[1], p[2], p[3]).into());
                 });
         }
         let file = File::create(img)?;
@@ -310,7 +310,7 @@ fn main() -> Result<(), Error> {
     let p2 = transform.apply(p2.into());
     let bbox = BBox::new(p1, p2);
 
-    let stroke_color = Arc::new(LinColor::from(ColorU8::new(255, 96, 17, 255)));
+    let stroke_color = Arc::new(LinColor::from(RGBA::new(255, 96, 17, 255)));
     let stroke_style = StrokeStyle {
         width: 20.0,
         line_join: LineJoin::Round,

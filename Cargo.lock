@@ -1027,9 +1027,9 @@ checksum = "d34f1408f55294453790c48b2f1ebbb1c5b4b7563eb1f418bcfcfdbb06ebb4e7"
 
 [[package]]
 name = "rasterize"
-version = "0.2.7"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8dc4d3f4359c96561ac70439caf092e17fe47b9dbefe9ec08d73965d887faf2"
+checksum = "238a59e541b177cc24efebb5bb7474180d5e1ae04ef27b5c37c928b4d0848971"
 dependencies = [
  "png",
  "tracing",
