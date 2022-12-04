@@ -11,8 +11,8 @@ use geozero::{ColumnValue, PropertyProcessor};
 use itertools::Itertools;
 use png::Decoder;
 use rasterize::{
-    ActiveEdgeRasterizer, BBox, Color, Image, ImageMut, Layer, LinColor, Line, LineCap, LineJoin,
-    Paint, Scene, Segment, StrokeStyle, SubPath, Transform, RGBA,
+    ActiveEdgeRasterizer, ArcPaint, BBox, Color, Image, ImageMut, Layer, LinColor, Line, LineCap,
+    LineJoin, Scene, Segment, StrokeStyle, SubPath, Transform, RGBA,
 };
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use time::format_description::well_known;
@@ -237,7 +237,7 @@ struct RasterizeOptions {
     rasterizer: ActiveEdgeRasterizer,
     bbox: BBox,
     transform: Transform,
-    stroke_color: Arc<LinColor>,
+    stroke_color: ArcPaint,
     stroke_style: StrokeStyle,
 }
 
@@ -249,7 +249,7 @@ fn rasterize_route(
     reproject_mls(&mut mls);
     let scene = Scene::stroke(
         Arc::new(mls_to_path(mls)),
-        Arc::clone(&options.stroke_color) as Arc<dyn Paint + Send + Sync>,
+        options.stroke_color.clone(),
         options.stroke_style,
     );
     let layer = scene.render(
